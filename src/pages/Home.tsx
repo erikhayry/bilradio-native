@@ -1,15 +1,21 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import React from 'react';
-import ExploreContainer from '../components/ExploreContainer';
-import { LocalNotifications } from '@ionic-native/local-notifications';
-import './Home.css';
+import {
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonItemDivider,
+  IonLabel,
+  IonList,
+  IonPage,
+  IonTitle,
+  IonToggle,
+  IonToolbar
+} from "@ionic/react";
+
+import React, { useState } from "react";
+import "./Home.css";
 
 const Home: React.FC = () => {
-    LocalNotifications.schedule({
-        id: 1,
-        text: 'Single ILocalNotification',
-        sound: 'file://beep.caf'
-    });
+  const [checked, setChecked] = useState(false);
 
   return (
     <IonPage>
@@ -19,12 +25,16 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Nyhetspaus 1</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer />
+        <IonList>
+          <IonItemDivider>Inställningar</IonItemDivider>
+          <IonItem>
+            <IonLabel>Slå på/av</IonLabel>
+            <IonToggle
+              checked={checked}
+              onIonChange={e => setChecked(e.detail.checked)}
+            />
+          </IonItem>
+        </IonList>
       </IonContent>
     </IonPage>
   );
