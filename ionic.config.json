@@ -1,0 +1,8 @@
+{
+  "name": "bilradio-native",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react",
+  "id": "83609c81"
+}
