@@ -1,20 +1,16 @@
 import { filterPrevEpisodes, getNextEpisodes } from "./data";
-import {
-  LocalNotifications
-} from "@ionic-native/local-notifications";
 import { BackgroundMode } from "@ionic-native/background-mode";
-import { isValidImageUrl, log, setToHappen } from "./index";
+import { isValidImageUrl, log } from "./index";
 import { Episode, State } from "../../typings";
-import { isInFuture, parseDateToString } from "./date";
-
-BackgroundMode.enable();
-
+import { parseDateToString } from "./date";
+import { getUser } from "./storage";
+import Notifier from "./notify";
 const MINUTE = 1000 * 60;
 const state: State = {
   isOn: true,
   nextEpisodes: [] as Episode[],
+  notifier: new Notifier(handClick, fetchData),
   fetchInterval: undefined,
-  notificationTimeout: undefined,
   broadcastNotification: undefined,
   onOffNotification: undefined
 };
@@ -39,43 +35,8 @@ function endFetchInterval() {
   }
 }
 
-async function notify({ title, endTime, startTime, imageUrl }: Episode) {
-  const startTimeString = parseDateToString(startTime);
-  const endTimeString = parseDateToString(endTime);
-  log("Notify", title, startTimeString, endTimeString);
-
-  if (state.broadcastNotification) {
-    await LocalNotifications.clear(state.broadcastNotification);
-  }
-
-  if (isInFuture(endTime)) {
-    const id = startTime.getTime();
-    const options: any = {
-      id,
-      title: `Nyhetssändning | ${startTimeString} - ${endTimeString}`,
-      text: title,
-      trigger: { at: startTime }
-    };
-
-    if (imageUrl) {
-      options.attachments = [imageUrl];
-    }
-
-    LocalNotifications.schedule(options);
-  } else {
-    fetchData();
-  }
-}
-
-const onClick = LocalNotifications.on("click");
-
-onClick.subscribe(data => {
-  log(data.id);
-});
-
 async function fetchData() {
   endFetchInterval();
-  clearTimeout(state.notificationTimeout);
   state.nextEpisodes = state.nextEpisodes.filter(filterPrevEpisodes);
 
   if (state.nextEpisodes.length === 0) {
@@ -95,10 +56,23 @@ async function fetchData() {
   );
 
   if (state.nextEpisodes.length > 0) {
-    notify(state.nextEpisodes[0]);
+    state.notifier.schedule(state.nextEpisodes);
   } else {
     startFetchInterval(25);
   }
 }
 
-export { fetchData };
+function handClick(data: any) {
+  console.log("click", data);
+}
+
+async function init() {
+  BackgroundMode.enable();
+  const userData = await getUser();
+  log("userData", userData);
+  if (userData.on) {
+    fetchData();
+  }
+}
+
+export { init };

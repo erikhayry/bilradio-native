@@ -1,3 +1,5 @@
+import Notifier from "../src/utils/notify";
+
 export interface ScheduledEpisodes {
   copyright: string;
   schedule: ServerEpisode[];
@@ -42,6 +44,7 @@ export interface Episode {
 export interface State {
   isOn: boolean;
   nextEpisodes: Episode[];
+  notifier: Notifier;
   fetchInterval?: any;
   notificationTimeout?: any;
   broadcastNotification?: string;

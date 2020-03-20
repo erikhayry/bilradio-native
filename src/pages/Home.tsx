@@ -11,11 +11,38 @@ import {
   IonToolbar
 } from "@ionic/react";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Home.css";
+import { getUser, IUserData, setUser as saveUser } from "../utils/storage";
+import { init } from "../utils/init";
 
 const Home: React.FC = () => {
-  const [checked, setChecked] = useState(false);
+  const [user, setUser] = useState<IUserData | undefined>(undefined);
+
+  useEffect(() => {
+    const runEffect = async () => {
+      const userData = await getUser();
+      setUser(userData);
+    };
+    runEffect();
+  }, []);
+
+  async function handleToggle(checked: boolean) {
+    if (user) {
+      const userUpdated = {
+        ...user,
+        on: checked
+      };
+      await setUser(userUpdated);
+      saveUser(userUpdated);
+    }
+  }
+
+  useEffect(() => {
+    if (user?.on) {
+      init();
+    }
+  }, [user]);
 
   return (
     <IonPage>
@@ -30,8 +57,9 @@ const Home: React.FC = () => {
           <IonItem>
             <IonLabel>Slå på/av</IonLabel>
             <IonToggle
-              checked={checked}
-              onIonChange={e => setChecked(e.detail.checked)}
+              disabled={!user}
+              checked={user?.on}
+              onIonChange={e => handleToggle(e.detail.checked)}
             />
           </IonItem>
         </IonList>

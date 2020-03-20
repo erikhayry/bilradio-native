@@ -57,4 +57,17 @@ function imageUrlToBase64(url: string): Promise<string> {
     .then(base64ToBrowser);
 }
 
-export { log, isValidImageUrl, setToHappen, getSearch, imageUrlToBase64 };
+function isDev() {
+  const isDev = window.location.host === "localhost:8100";
+  log("isDev", isDev);
+  return isDev;
+}
+
+export {
+  log,
+  isValidImageUrl,
+  setToHappen,
+  getSearch,
+  imageUrlToBase64,
+  isDev
+};
